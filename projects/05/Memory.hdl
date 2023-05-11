@@ -26,6 +26,18 @@ CHIP Memory {
     IN in[16], load, address[15];
     OUT out[16];
 
+    /* 0000000000000000 RAM start
+    // 0011111111111111 RAM end
+    // 0100000000000000  Screen start
+    // 0101111111111111 Screen end
+    // 0110000000000000 Keyboard
+    */
     PARTS:
-    // Put your code here:
+    /* We can use bit 13 and 14 to determine what memory should we put the input to*/
+    DMux4Way(in=load, sel=address[13..14], a=loadram1, b=loadram2, c=loadscr, d=loadkbd);
+    Or(a=loadram1, b=loadram2, out=loadram);
+    RAM16K(in=in, load=loadram, address=address[0..13], out=outRAM);
+    Screen(in=in, load=loadscr, address=address[0..12], out=outScr);
+    Keyboard(out=outKbd);
+    Mux4Way16(a=outRAM, b=outRAM, c=outScr, d=outKbd, sel=address[13..14], out=out);
 }
